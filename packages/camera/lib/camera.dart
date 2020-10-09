@@ -245,6 +245,7 @@ class CameraController extends ValueNotifier<CameraValue> {
     this.description,
     this.resolutionPreset, {
     this.enableAudio = true,
+        this.flashtype=false
   }) : super(const CameraValue.uninitialized());
 
   final CameraDescription description;
@@ -252,6 +253,7 @@ class CameraController extends ValueNotifier<CameraValue> {
 
   /// Whether to include audio when recording a video.
   final bool enableAudio;
+  final bool flashtype;
 
   int _textureId;
   bool _isDisposed = false;
@@ -275,6 +277,7 @@ class CameraController extends ValueNotifier<CameraValue> {
           'cameraName': description.name,
           'resolutionPreset': serializeResolutionPreset(resolutionPreset),
           'enableAudio': enableAudio,
+          'flashtype':flashtype
         },
       );
       _textureId = reply['textureId'];
@@ -568,7 +571,16 @@ class CameraController extends ValueNotifier<CameraValue> {
       throw CameraException(e.code, e.message);
     }
   }
-
+  Future<void> setflash(type) async{
+    try{
+      await _channel.invokeMethod<void>(
+        'setFlash',
+        <String, dynamic>{'textureId': _textureId,'type': type},
+      );
+    }on PlatformException catch(e){
+      throw CameraException(e.code, e.message);
+    }
+  }
   /// Releases the resources of this camera.
   @override
   Future<void> dispose() async {
@@ -586,4 +598,5 @@ class CameraController extends ValueNotifier<CameraValue> {
       await _eventSubscription?.cancel();
     }
   }
+
 }
