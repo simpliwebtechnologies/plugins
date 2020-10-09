@@ -319,7 +319,7 @@ public class Camera {
               if(recordingVideo && flashtype)
               {
                 captureRequestBuilder.set(CaptureRequest.FLASH_MODE,CameraMetadata.FLASH_MODE_TORCH);
-              }2
+              }
               cameraCaptureSession.setRepeatingRequest(captureRequestBuilder.build(), null, null);
               if (onSuccessCallback != null) {
                 onSuccessCallback.run();
