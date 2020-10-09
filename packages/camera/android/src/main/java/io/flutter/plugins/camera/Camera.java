@@ -344,7 +344,7 @@ public class Camera {
     cameraDevice.createCaptureSession(surfaceList, callback, null);
   }
 
-  2public void startVideoRecording(String filePath, Result result) {
+  public void startVideoRecording(String filePath, Result result) {
     if (new File(filePath).exists()) {
       result.error("fileExists", "File at path '" + filePath + "' already exists.", null);
       return;
