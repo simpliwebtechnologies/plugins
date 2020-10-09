@@ -43,7 +43,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
   VideoPlayerController videoController;
   VoidCallback videoPlayerListener;
   bool enableAudio = true;
-
+  bool flash=false;
   @override
   void initState() {
     super.initState();
@@ -103,6 +103,31 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
           ),
           _captureControlRowWidget(),
           _toggleAudioWidget(),
+          IconButton(
+            icon: Icon((!flash)?Icons.flash_off:Icons.flash_on),
+            color: Colors.red,
+            onPressed:() async{
+              if(flash)
+                {
+                  flash = false;
+                  if (controller != null) {
+                    onNewCameraSelected(controller.description);
+                  }
+                  setState(() {
+
+                  });
+                }
+              else{
+                flash = true;
+                if (controller != null) {
+                  onNewCameraSelected(controller.description);
+                }
+                setState(() {
+
+                });
+              }
+            },
+          ),
           Padding(
             padding: const EdgeInsets.all(5.0),
             child: Row(
@@ -117,7 +142,8 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
       ),
     );
   }
-
+  double _scaleFactor = 1.0;
+  double _baseScaleFactor = 1.0;
   /// Display the preview from the camera (or a message if the preview is not available).
   Widget _cameraPreviewWidget() {
     if (controller == null || !controller.value.isInitialized) {
@@ -130,9 +156,22 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
         ),
       );
     } else {
-      return AspectRatio(
-        aspectRatio: controller.value.aspectRatio,
-        child: CameraPreview(controller),
+      return GestureDetector(
+        onScaleStart: (details) {
+          _baseScaleFactor = _scaleFactor;
+        },
+        onScaleUpdate: (details) {
+          setState(() {
+            _scaleFactor = _baseScaleFactor * details.scale;
+          });
+        },
+        child: Transform.scale(
+          scale: _scaleFactor,
+          child: AspectRatio(
+            aspectRatio: controller.value.aspectRatio,
+            child: CameraPreview(controller),
+          ),
+        ),
       );
     }
   }
@@ -237,7 +276,8 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
                   controller.value.isRecordingVideo
               ? onStopButtonPressed
               : null,
-        )
+        ),
+
       ],
     );
   }
@@ -283,6 +323,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
       cameraDescription,
       ResolutionPreset.medium,
       enableAudio: enableAudio,
+      flashtype:flash
     );
 
     // If the controller is updated then update the UI.
