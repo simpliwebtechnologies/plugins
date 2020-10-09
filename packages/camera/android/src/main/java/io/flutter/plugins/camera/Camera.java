@@ -50,6 +50,7 @@ public class Camera {
   private final Size captureSize;
   private final Size previewSize;
   private final boolean enableAudio;
+  private final boolean flashtype;
 
   private CameraDevice cameraDevice;
   private CameraCaptureSession cameraCaptureSession;
@@ -78,13 +79,15 @@ public class Camera {
       final DartMessenger dartMessenger,
       final String cameraName,
       final String resolutionPreset,
-      final boolean enableAudio)
+      final boolean enableAudio,
+      final  boolean flashtype)
       throws CameraAccessException {
     if (activity == null) {
       throw new IllegalStateException("No activity available!");
     }
     this.cameraName = cameraName;
     this.enableAudio = enableAudio;
+    this.flashtype=flashtype;
     this.flutterTexture = flutterTexture;
     this.dartMessenger = dartMessenger;
     this.cameraManager = (CameraManager) activity.getSystemService(Context.CAMERA_SERVICE);
@@ -238,6 +241,10 @@ public class Camera {
           cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
       captureBuilder.addTarget(pictureImageReader.getSurface());
       captureBuilder.set(CaptureRequest.JPEG_ORIENTATION, getMediaOrientation());
+      if(flashtype)
+      {
+        captureBuilder.set(CaptureRequest.FLASH_MODE,CameraMetadata.FLASH_MODE_SINGLE);
+      }
 
       cameraCaptureSession.capture(
           captureBuilder.build(),
@@ -309,6 +316,10 @@ public class Camera {
               cameraCaptureSession = session;
               captureRequestBuilder.set(
                   CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
+              if(recordingVideo && flashtype)
+              {
+                captureRequestBuilder.set(CaptureRequest.FLASH_MODE,CameraMetadata.FLASH_MODE_TORCH);
+              }2
               cameraCaptureSession.setRepeatingRequest(captureRequestBuilder.build(), null, null);
               if (onSuccessCallback != null) {
                 onSuccessCallback.run();
@@ -333,19 +344,35 @@ public class Camera {
     cameraDevice.createCaptureSession(surfaceList, callback, null);
   }
 
-  public void startVideoRecording(String filePath, Result result) {
+  2public void startVideoRecording(String filePath, Result result) {
     if (new File(filePath).exists()) {
       result.error("fileExists", "File at path '" + filePath + "' already exists.", null);
       return;
     }
     try {
       prepareMediaRecorder(filePath);
+
       recordingVideo = true;
       createCaptureSession(
           CameraDevice.TEMPLATE_RECORD, () -> mediaRecorder.start(), mediaRecorder.getSurface());
       result.success(null);
     } catch (CameraAccessException | IOException e) {
       result.error("videoRecordingFailed", e.getMessage(), null);
+    }
+  }
+  public  void setFlash(String type, Result result)
+  {
+    try{
+      if(type == "on")
+      {
+        captureRequestBuilder.set(CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_TORCH);
+      }
+      else {
+        captureRequestBuilder.set(CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_OFF);
+      }
+      createCaptureSession(CameraDevice.TEMPLATE_PREVIEW, pictureImageReader.getSurface());
+    }catch (CameraAccessException e) {
+      result.error("flashsettingfailed", e.getMessage(), null);
     }
   }
 

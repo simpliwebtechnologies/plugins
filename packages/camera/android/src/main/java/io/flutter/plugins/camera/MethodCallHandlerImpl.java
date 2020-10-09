@@ -103,6 +103,11 @@ final class MethodCallHandlerImpl implements MethodChannel.MethodCallHandler {
           camera.resumeVideoRecording(result);
           break;
         }
+      case "setFlash":
+      {
+        camera.setFlash(call.argument("type"), result);
+        break;
+      }
       case "startImageStream":
         {
           try {
@@ -145,6 +150,7 @@ final class MethodCallHandlerImpl implements MethodChannel.MethodCallHandler {
     String cameraName = call.argument("cameraName");
     String resolutionPreset = call.argument("resolutionPreset");
     boolean enableAudio = call.argument("enableAudio");
+    boolean flashtype = call.argument("flashtype");
     TextureRegistry.SurfaceTextureEntry flutterSurfaceTexture =
         textureRegistry.createSurfaceTexture();
     DartMessenger dartMessenger = new DartMessenger(messenger, flutterSurfaceTexture.id());
@@ -155,7 +161,7 @@ final class MethodCallHandlerImpl implements MethodChannel.MethodCallHandler {
             dartMessenger,
             cameraName,
             resolutionPreset,
-            enableAudio);
+            enableAudio,flashtype);
 
     camera.open(result);
   }
