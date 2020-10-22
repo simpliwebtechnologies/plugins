@@ -321,7 +321,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
     }
     controller = CameraController(
       cameraDescription,
-      ResolutionPreset.medium,
+      ResolutionPreset.ultraslowmo,
       enableAudio: enableAudio,
       flashtype:flash
     );
@@ -404,7 +404,7 @@ class _CameraExampleHomeState extends State<CameraExampleHome>
 
     try {
       videoPath = filePath;
-      await controller.startVideoRecording(filePath);
+      await controller.startVideoRecording(filePath,"ultraslowmo");
     } on CameraException catch (e) {
       _showCameraException(e);
       return null;
