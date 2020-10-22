@@ -36,6 +36,10 @@ enum ResolutionPreset {
 
   /// The highest resolution available.
   max,
+  ultraslowmo,
+  slowmo,
+  timelapse,
+  ultratimelapse
 }
 
 // ignore: inference_failure_on_function_return_type
@@ -56,6 +60,14 @@ String serializeResolutionPreset(ResolutionPreset resolutionPreset) {
       return 'medium';
     case ResolutionPreset.low:
       return 'low';
+    case ResolutionPreset.ultraslowmo:
+      return 'ultraslowmo';
+    case ResolutionPreset.slowmo:
+      return 'slowmo';
+    case ResolutionPreset.timelapse:
+      return 'timelapse';
+    case ResolutionPreset.ultratimelapse:
+      return 'ultratimelapse';
   }
   throw ArgumentError('Unknown ResolutionPreset value');
 }
@@ -462,7 +474,7 @@ class CameraController extends ValueNotifier<CameraValue> {
   /// The file can be read as soon as [stopVideoRecording] returns.
   ///
   /// Throws a [CameraException] if the capture fails.
-  Future<void> startVideoRecording(String filePath) async {
+  Future<void> startVideoRecording(String filePath,String motiontype) async {
     if (!value.isInitialized || _isDisposed) {
       throw CameraException(
         'Uninitialized CameraController',
@@ -485,7 +497,7 @@ class CameraController extends ValueNotifier<CameraValue> {
     try {
       await _channel.invokeMethod<void>(
         'startVideoRecording',
-        <String, dynamic>{'textureId': _textureId, 'filePath': filePath},
+        <String, dynamic>{'textureId': _textureId, 'filePath': filePath,'motiontype':motiontype},
       );
       value = value.copyWith(isRecordingVideo: true, isRecordingPaused: false);
     } on PlatformException catch (e) {
@@ -575,7 +587,7 @@ class CameraController extends ValueNotifier<CameraValue> {
     try{
       await _channel.invokeMethod<void>(
         'setFlash',
-        <String, dynamic>{'textureId': _textureId,'type': type},
+        <String, dynamic>{'textureId': _textureId},
       );
     }on PlatformException catch(e){
       throw CameraException(e.code, e.message);
