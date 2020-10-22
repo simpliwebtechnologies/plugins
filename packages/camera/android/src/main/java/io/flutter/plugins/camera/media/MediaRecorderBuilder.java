@@ -8,6 +8,8 @@ import android.media.MediaRecorder;
 import androidx.annotation.NonNull;
 import java.io.IOException;
 
+import io.flutter.plugins.camera.Camera;
+
 public class MediaRecorderBuilder {
   static class MediaRecorderFactory {
     MediaRecorder makeMediaRecorder() {
@@ -16,6 +18,7 @@ public class MediaRecorderBuilder {
   }
 
   private final String outputFilePath;
+  private  final String preset;
   private final CamcorderProfile recordingProfile;
   private final MediaRecorderFactory recorderFactory;
 
@@ -23,16 +26,18 @@ public class MediaRecorderBuilder {
   private int mediaOrientation;
 
   public MediaRecorderBuilder(
-      @NonNull CamcorderProfile recordingProfile, @NonNull String outputFilePath) {
-    this(recordingProfile, outputFilePath, new MediaRecorderFactory());
+          @NonNull CamcorderProfile recordingProfile, @NonNull String outputFilePath, @NonNull String preset) {
+    this(recordingProfile, outputFilePath,preset, new MediaRecorderFactory());
   }
 
   MediaRecorderBuilder(
       @NonNull CamcorderProfile recordingProfile,
       @NonNull String outputFilePath,
+      @NonNull String preset,
       MediaRecorderFactory helper) {
     this.outputFilePath = outputFilePath;
     this.recordingProfile = recordingProfile;
+    this.preset = preset;
     this.recorderFactory = helper;
   }
 
@@ -46,6 +51,7 @@ public class MediaRecorderBuilder {
     return this;
   }
 
+
   public MediaRecorder build() throws IOException {
     MediaRecorder mediaRecorder = recorderFactory.makeMediaRecorder();
 
@@ -55,6 +61,8 @@ public class MediaRecorderBuilder {
       mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
       mediaRecorder.setAudioEncodingBitRate(recordingProfile.audioBitRate);
     }
+
+
     mediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
     mediaRecorder.setOutputFormat(recordingProfile.fileFormat);
     if (enableAudio) mediaRecorder.setAudioEncoder(recordingProfile.audioCodec);
@@ -62,6 +70,25 @@ public class MediaRecorderBuilder {
     mediaRecorder.setVideoEncodingBitRate(recordingProfile.videoBitRate);
     if (enableAudio) mediaRecorder.setAudioSamplingRate(recordingProfile.audioSampleRate);
     mediaRecorder.setVideoFrameRate(recordingProfile.videoFrameRate);
+    if(preset.equals("ultraslowmo"))
+    {
+      mediaRecorder.setCaptureRate(recordingProfile.videoFrameRate / 0.25f);
+    }
+    else if(preset.equals("slowmo"))
+    {
+      mediaRecorder.setCaptureRate(recordingProfile.videoFrameRate / 0.50f);
+    }
+    else if(preset.equals("timelapse"))
+    {
+      mediaRecorder.setCaptureRate(recordingProfile.videoFrameRate / 3.0f);
+    }
+    else if(preset.equals("ultratimelapse"))
+    {
+      mediaRecorder.setCaptureRate(recordingProfile.videoFrameRate / 6.0f);
+    }
+    else{
+      mediaRecorder.setCaptureRate(recordingProfile.videoFrameRate);
+    }
     mediaRecorder.setVideoSize(recordingProfile.videoFrameWidth, recordingProfile.videoFrameHeight);
     mediaRecorder.setOutputFile(outputFilePath);
     mediaRecorder.setOrientationHint(this.mediaOrientation);
