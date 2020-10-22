@@ -51,6 +51,7 @@ public class Camera {
   private final Size previewSize;
   private final boolean enableAudio;
   private final boolean flashtype;
+  private final String preset;
 
   private CameraDevice cameraDevice;
   private CameraCaptureSession cameraCaptureSession;
@@ -63,6 +64,7 @@ public class Camera {
   private CamcorderProfile recordingProfile;
   private int currentOrientation = ORIENTATION_UNKNOWN;
 
+
   // Mirrors camera.dart
   public enum ResolutionPreset {
     low,
@@ -71,8 +73,11 @@ public class Camera {
     veryHigh,
     ultraHigh,
     max,
+    ultraslowmo,
+    slowmo,
+    timelapse,
+    ultratimelapse
   }
-
   public Camera(
       final Activity activity,
       final SurfaceTextureEntry flutterTexture,
@@ -86,6 +91,7 @@ public class Camera {
       throw new IllegalStateException("No activity available!");
     }
     this.cameraName = cameraName;
+    this.preset=resolutionPreset;
     this.enableAudio = enableAudio;
     this.flashtype=flashtype;
     this.flutterTexture = flutterTexture;
@@ -115,17 +121,19 @@ public class Camera {
     ResolutionPreset preset = ResolutionPreset.valueOf(resolutionPreset);
     recordingProfile =
         CameraUtils.getBestAvailableCamcorderProfileForResolutionPreset(cameraName, preset);
+
+
+
     captureSize = new Size(recordingProfile.videoFrameWidth, recordingProfile.videoFrameHeight);
     previewSize = computeBestPreviewSize(cameraName, preset);
   }
 
-  private void prepareMediaRecorder(String outputFilePath) throws IOException {
+  private void prepareMediaRecorder(String outputFilePath,String motion) throws IOException {
     if (mediaRecorder != null) {
       mediaRecorder.release();
     }
 
-    mediaRecorder =
-        new MediaRecorderBuilder(recordingProfile, outputFilePath)
+    mediaRecorder = new MediaRecorderBuilder(recordingProfile, outputFilePath,motion)
             .setEnableAudio(enableAudio)
             .setMediaOrientation(getMediaOrientation())
             .build();
@@ -245,7 +253,6 @@ public class Camera {
       {
         captureBuilder.set(CaptureRequest.FLASH_MODE,CameraMetadata.FLASH_MODE_SINGLE);
       }
-
       cameraCaptureSession.capture(
           captureBuilder.build(),
           new CameraCaptureSession.CaptureCallback() {
@@ -344,15 +351,16 @@ public class Camera {
     cameraDevice.createCaptureSession(surfaceList, callback, null);
   }
 
-  public void startVideoRecording(String filePath, Result result) {
+  public void startVideoRecording(String filePath,String motion, Result result) {
     if (new File(filePath).exists()) {
       result.error("fileExists", "File at path '" + filePath + "' already exists.", null);
       return;
     }
     try {
-      prepareMediaRecorder(filePath);
+      prepareMediaRecorder(filePath,motion);
 
       recordingVideo = true;
+
       createCaptureSession(
           CameraDevice.TEMPLATE_RECORD, () -> mediaRecorder.start(), mediaRecorder.getSurface());
       result.success(null);

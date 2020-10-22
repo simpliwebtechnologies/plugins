@@ -99,6 +99,22 @@ public final class CameraUtils {
         if (CamcorderProfile.hasProfile(cameraId, CamcorderProfile.QUALITY_QVGA)) {
           return CamcorderProfile.get(cameraId, CamcorderProfile.QUALITY_QVGA);
         }
+      case ultraslowmo:
+        if (CamcorderProfile.hasProfile(cameraId, CamcorderProfile.QUALITY_HIGH_SPEED_HIGH)) {
+          return CamcorderProfile.get(cameraId, CamcorderProfile.QUALITY_HIGH_SPEED_HIGH);
+        }
+      case slowmo:
+        if (CamcorderProfile.hasProfile(cameraId, CamcorderProfile.QUALITY_HIGH_SPEED_HIGH)) {
+          return CamcorderProfile.get(cameraId, CamcorderProfile.QUALITY_HIGH_SPEED_HIGH);
+        }
+      case timelapse:
+        if (CamcorderProfile.hasProfile(cameraId, CamcorderProfile.QUALITY_TIME_LAPSE_720P)) {
+          return CamcorderProfile.get(cameraId, CamcorderProfile.QUALITY_TIME_LAPSE_720P);
+        }
+      case ultratimelapse:
+        if (CamcorderProfile.hasProfile(cameraId, CamcorderProfile.QUALITY_TIME_LAPSE_720P)) {
+          return CamcorderProfile.get(cameraId, CamcorderProfile.QUALITY_TIME_LAPSE_720P);
+        }
       default:
         if (CamcorderProfile.hasProfile(cameraId, CamcorderProfile.QUALITY_LOW)) {
           return CamcorderProfile.get(cameraId, CamcorderProfile.QUALITY_LOW);

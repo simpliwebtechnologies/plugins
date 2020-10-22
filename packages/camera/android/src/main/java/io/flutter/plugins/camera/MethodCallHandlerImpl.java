@@ -85,7 +85,7 @@ final class MethodCallHandlerImpl implements MethodChannel.MethodCallHandler {
         }
       case "startVideoRecording":
         {
-          camera.startVideoRecording(call.argument("filePath"), result);
+          camera.startVideoRecording(call.argument("filePath"),call.argument("motiontype"), result);
           break;
         }
       case "stopVideoRecording":
